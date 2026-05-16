@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>devlog.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Sora:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f12;
+  --surface:#141618;
+  --border:#2a2d31;
+  --accent:#00e5a0;
+  --text:#e0e0e0;
+  --text-muted:#6b7280;
+  --danger:#ff4d4d;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-sans:'Sora',sans-serif;
+}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-sans);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+#app{
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* HEADER */
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 24px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.logo{font-family:var(--font-mono);font-size:1.1rem;font-weight:700}
+.logo .accent{color:var(--accent)}
+.logo .dot{color:var(--text)}
+.btn-key{
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:4px;
+  color:var(--text-muted);
+  font-family:var(--font-mono);
+  font-size:.6rem;
+  padding:3px 8px;
+  cursor:pointer;
+  transition:color .15s,border-color .15s;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.btn-key:hover{color:var(--accent);border-color:var(--accent)}
+.beta{
+  font-family:var(--font-mono);
+  font-size:0.6rem;
+  color:var(--accent);
+  border:1px solid var(--accent);
+  border-radius:4px;
+  padding:2px 6px;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+}
+
+/* MAIN GRID */
+main{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  flex:1;
+  overflow:hidden;
+}
+.panel{
+  display:flex;
+  flex-direction:column;
+  padding:20px 24px;
+  overflow-y:auto;
+  gap:12px;
+}
+.panel-left{border-right:1px solid var(--border)}
+
+/* TABS */
+.tabs{
+  display:flex;
+  gap:4px;
+  flex-shrink:0;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  padding:8px 14px;
+  background:transparent;
+  border:none;
+  border-bottom:2px solid transparent;
+  color:var(--text-muted);
+  cursor:pointer;
+  white-space:nowrap;
+  transition:color .15s,border-color .15s;
+}
+.tab:hover{color:var(--text);border-bottom-color:var(--border)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* TEXTAREA */
+.textarea-wrap{display:flex;flex-direction:column;gap:4px;flex:1;min-height:0}
+textarea{
+  flex:1;
+  min-height:200px;
+  resize:none;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:16px;
+  font-family:var(--font-mono);
+  font-size:.8rem;
+  color:var(--text);
+  line-height:1.6;
+  outline:none;
+  transition:border-color .15s;
+}
+textarea:focus{border-color:var(--accent)}
+textarea::placeholder{color:var(--text-muted)}
+.inline-error{
+  font-family:var(--font-mono);
+  font-size:.65rem;
+  color:var(--danger);
+  min-height:1em;
+}
+
+/* SELECTORS GRID */
+.selectors{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  flex-shrink:0;
+}
+.selectors label{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  font-family:var(--font-sans);
+  font-size:.7rem;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.selectors select{
+  width:100%;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:8px 10px;
+  font-family:var(--font-mono);
+  font-size:.75rem;
+  color:var(--text);
+  outline:none;
+  cursor:pointer;
+  transition:border-color .15s;
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+  padding-right:28px;
+}
+.selectors select:focus{border-color:var(--accent)}
+
+/* EXAMPLE CHIPS */
+.examples-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.example-label{font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted)}
+.chip{
+  font-family:var(--font-mono);font-size:.68rem;padding:4px 10px;
+  border-radius:4px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-muted);
+  cursor:pointer;transition:all .15s;
+}
+.chip:hover{border-color:#0091ff;color:var(--text)}
+
+/* BOTTOM BAR */
+.bottom-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-shrink:0;
+}
+.char-counter{
+  font-family:var(--font-mono);
+  font-size:.65rem;
+  color:var(--text-muted);
+  transition:color .15s;
+}
+.char-counter.danger{color:var(--danger)}
+
+/* GENERATE BUTTON */
+.btn-generate{
+  flex-shrink:0;
+  padding:10px 24px;
+  background:var(--accent);
+  color:#0a0a0a;
+  border:none;
+  border-radius:6px;
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:.8rem;
+  cursor:pointer;
+  transition:opacity .15s;
+  white-space:nowrap;
+}
+.btn-generate:hover{opacity:.85}
+.btn-generate:disabled{
+  background:var(--surface);
+  color:var(--text-muted);
+  cursor:not-allowed;
+  opacity:1;
+}
+
+/* RIGHT PANEL */
+.output-wrap{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  gap:10px;
+}
+.output-box{
+  flex:1;
+  overflow-y:auto;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:16px;
+  font-family:var(--font-mono);
+  font-size:.78rem;
+  line-height:1.8;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  min-height:200px;
+}
+.output-empty{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  height:100%;
+  color:var(--text-muted);
+  text-align:center;
+  gap:4px;
+}
+.output-empty .icon{font-size:2rem;opacity:.4}
+.output-empty .label{font-family:var(--font-mono);font-size:.7rem}
+
+/* ACTION BUTTONS */
+.actions{
+  display:flex;
+  gap:8px;
+  flex-shrink:0;
+  min-height:28px;
+}
+.actions.hidden{visibility:hidden;pointer-events:none}
+.btn-action{
+  padding:5px 12px;
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:4px;
+  color:var(--text-muted);
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  cursor:pointer;
+  transition:color .15s,border-color .15s;
+}
+.btn-action:hover{border-color:var(--accent);color:var(--accent)}
+
+/* STATUS BAR */
+.status-bar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:var(--font-mono);
+  font-size:.65rem;
+  min-height:20px;
+  flex-shrink:0;
+}
+.status-bar.idle{visibility:hidden}
+.status-dot{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  display:none;
+}
+.status-dot.pulse{display:inline-block;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.status-text{color:var(--text-muted);text-transform:lowercase}
+.status-done .status-text{color:var(--accent)}
+.status-error .status-text{color:var(--danger)}
+
+/* BLINKING CURSOR */
+.output-box.streaming #outputContent::after{
+  content:'|';
+  animation:blink .8s step-end infinite;
+  color:var(--accent);
+  font-family:var(--font-mono);
+}
+@keyframes blink{50%{opacity:0}}
+
+/* MODAL OVERLAY */
+.modal-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+}
+.modal-overlay.hidden{display:none}
+.modal-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:28px 32px;
+  max-width:420px;
+  width:100%;
+  display:flex;flex-direction:column;gap:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.modal-title{
+  font-family:var(--font-mono);
+  font-size:.9rem;font-weight:700;
+  color:var(--text);
+}
+.modal-note{
+  font-family:var(--font-sans);
+  font-size:.72rem;color:var(--text-muted);
+  line-height:1.6;
+}
+.modal-note a{color:var(--accent)}
+.modal-input{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--border);border-radius:6px;
+  padding:10px 14px;
+  font-family:var(--font-mono);font-size:.75rem;
+  color:var(--text);outline:none;
+  transition:border-color .15s;
+}
+.modal-input:focus{border-color:var(--accent)}
+.modal-btn{
+  background:var(--accent);color:#0a0a0a;
+  border:none;border-radius:6px;
+  padding:10px 20px;
+  font-family:var(--font-mono);font-weight:700;
+  font-size:.75rem;cursor:pointer;
+  align-self:flex-end;
+  transition:opacity .15s;
+}
+.modal-btn:hover{opacity:.85}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  main{grid-template-columns:1fr}
+  .panel-left{border-right:none;border-bottom:1px solid var(--border);padding-bottom:16px}
+  .panel-right{padding-top:0}
+  .panel{padding:16px}
+  header{padding:10px 16px}
+  textarea{min-height:140px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo"><span class="accent">devlog</span><span class="dot">.ai</span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="btn-key" onclick="showKeyModal()">&#9881; key</button>
+      <span class="beta">beta</span>
+    </div>
+  </header>
+  <main>
+    <!-- LEFT PANEL -->
+    <section class="panel panel-left">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-mode="git_diff" role="tab">Git Diff</button>
+        <button class="tab" data-mode="error_log" role="tab">Error Log</button>
+        <button class="tab" data-mode="commit_msg" role="tab">Commit Msgs</button>
+        <button class="tab" data-mode="pr_desc" role="tab">PR Description</button>
+      </div>
+
+      <div class="examples-row">
+        <span class="example-label">try:</span>
+        <button class="chip" data-example="diff">git diff &rarr;</button>
+        <button class="chip" data-example="error">error log &rarr;</button>
+        <button class="chip" data-example="commits">commits &rarr;</button>
+      </div>
+
+      <div class="textarea-wrap">
+        <textarea id="inputText" maxlength="4000" placeholder="Paste your git diff here..."></textarea>
+        <div class="inline-error" id="inlineError"></div>
+      </div>
+
+      <div class="selectors">
+        <label>
+          format
+          <select id="formatSelect">
+            <option>Changelog</option>
+            <option>PR Description</option>
+            <option>Release Notes</option>
+            <option>Standup</option>
+            <option>Postmortem</option>
+          </select>
+        </label>
+        <label>
+          audience
+          <select id="audienceSelect">
+            <option>Engineering</option>
+            <option>Product</option>
+            <option>Public</option>
+            <option>Manager</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="bottom-bar">
+        <span class="char-counter" id="charCounter">0 / 4000</span>
+        <button class="btn-generate" id="btnGenerate">&#9654;&nbsp; generate</button>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL -->
+    <section class="panel panel-right">
+      <div class="output-wrap">
+        <div class="output-box" id="outputBox">
+          <div class="output-empty" id="outputEmpty">
+            <div class="icon">&#8983;</div>
+            <div class="label">paste input on the left<br>and hit generate</div>
+          </div>
+          <div id="outputContent" style="display:none"></div>
+        </div>
+
+        <div class="actions hidden" id="actions">
+          <button class="btn-action" id="btnCopy">copy</button>
+          <button class="btn-action" id="btnClear">clear</button>
+          <button class="btn-action" id="btnRegenerate">regenerate</button>
+        </div>
+      </div>
+
+      <div class="status-bar idle" id="statusBar">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">idle</span>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal-card">
+      <div class="modal-title">Enter your Gemini API key</div>
+      <div class="modal-note">get free key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> — stored locally, never sent anywhere except Google</div>
+      <input class="modal-input" id="modalInput" type="text" placeholder="AIza...">
+      <button class="modal-btn" id="modalSaveBtn">save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showKeyModal(){
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.getElementById('modalInput').value = '';
+  document.getElementById('modalInput').focus();
+}
+function hideKeyModal(){
+  document.getElementById('modalOverlay').classList.add('hidden');
+  document.getElementById('inputText').focus();
+}
+(function(){
+  // DOM refs
+  const tabs = document.querySelectorAll('.tab');
+  const textarea = document.getElementById('inputText');
+  const charCounter = document.getElementById('charCounter');
+  const inlineError = document.getElementById('inlineError');
+  const btnGenerate = document.getElementById('btnGenerate');
+  const outputBox = document.getElementById('outputBox');
+  const outputEmpty = document.getElementById('outputEmpty');
+  const outputContent = document.getElementById('outputContent');
+  const actions = document.getElementById('actions');
+  const btnCopy = document.getElementById('btnCopy');
+  const btnClear = document.getElementById('btnClear');
+  const btnRegen = document.getElementById('btnRegenerate');
+  const statusBar = document.getElementById('statusBar');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalInput = document.getElementById('modalInput');
+  const modalSaveBtn = document.getElementById('modalSaveBtn');
+
+  const placeholders = {
+    git_diff: 'Paste your git diff here...',
+    error_log: 'Paste your error log or stack trace here...',
+    commit_msg: 'Paste your commit messages here...',
+    pr_desc: 'Paste your PR description here...'
+  };
+
+  let lastInput = '';
+  let abortController = null;
+  let isGenerating = false;
+  let charCountStreamed = 0;
+
+  function getApiKey(){ return localStorage.getItem('gemini_key'); }
+
+  const PROMPTS = {
+    git_diff: {
+      changelog: "You are a senior engineer. Analyze this git diff. Output a Keep a Changelog entry with Added/Changed/Fixed/Removed sections only. Be technical and specific. No intro, no explanation, no filler.",
+      pr: "You are writing a GitHub PR description. Analyze this git diff. Output: one-line summary, What changed and why, How to test, Breaking changes (if any). Concise. No filler.",
+      release: "Convert this git diff into user-facing release notes. Focus on what users gain. Group by impact. Plain language. No implementation details.",
+      standup: "Summarize this git diff as a standup update. Output exactly: What was done, Any blockers found, What is next. Max 5 bullets total.",
+      postmortem: "Analyze this git diff as a bug fix. Write a postmortem: What broke, Root cause, What the fix does, How to prevent recurrence. Structured sections."
+    },
+    error_log: {
+      changelog: "Analyze this error log. Output structured incident report: Root cause (1 sentence), Affected component, Severity level, Recommended fix. No filler.",
+      pr: "This is an error log. Write a PR description for the fix: What broke, Why it broke, What the fix must address. Structured.",
+      release: "Summarize this error as a user-facing incident notice. Clear language, no jargon. Focus on impact and resolution status.",
+      standup: "Summarize this error for standup. Output: What broke, When detected, Current status, Next steps. Max 4 bullets.",
+      postmortem: "Write a postmortem for this error. Sections: Timeline, Root cause, Impact, Fix applied, Prevention measures."
+    },
+    commit_msg: {
+      changelog: "Convert these commit messages into a structured changelog. Sections: Added, Changed, Fixed. Group related commits. Remove noise and duplicates.",
+      pr: "Summarize these commits as a PR description: What was built, Key changes, Testing notes. Concise.",
+      release: "Convert these commits into polished release notes for users. Focus on features and fixes that matter to them. No technical jargon.",
+      standup: "Summarize these commits as a standup update in max 5 bullets. What shipped, what fixed, what is next.",
+      postmortem: "Find any bug fix commits in this list. Write a postmortem for the issues they address. If no bugs found, say so."
+    },
+    pr_desc: {
+      changelog: "Convert this PR description into a Keep a Changelog entry. Added/Changed/Fixed sections. Technical and specific.",
+      pr: "Rewrite this PR description to be clearer and more useful for reviewers. Add structure: Summary, Changes, Testing, Risks.",
+      release: "Convert this PR description into user-facing release notes. Plain language. Focus on user value.",
+      standup: "Summarize this PR as a standup update in 3-5 bullets.",
+      postmortem: "If this PR contains a bug fix, write a postmortem. If not, summarize what was shipped and why."
+    }
+  };
+
+  const AUDIENCE_NOTES = {
+    engineering: "Audience: engineers. Use technical terms. Be precise and specific.",
+    product: "Audience: product managers. Explain impact. Avoid jargon. Focus on user value and business outcome.",
+    public: "Audience: end users. Plain simple language. Focus only on what changed for them.",
+    manager: "Audience: stakeholders. Focus on business impact, timeline, and risk. No implementation details."
+  };
+
+  const EXAMPLES = {
+    diff: `diff --git a/src/api/auth.py b/src/api/auth.py
+index a3f9c12..7b4e801 100644
+--- a/src/api/auth.py
++++ b/src/api/auth.py
+@@ -45,6 +45,12 @@ def verify_token(token: str):
+     if not token:
+         raise HTTPException(status_code=401)
++    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
++    if payload.get('exp', 0) < time.time():
++        raise HTTPException(status_code=401, detail="Token expired")
++    return payload
++
+ def login(email: str, password: str):
+-    user = db.find_user(email)
++    user = db.find_user_by_email(email)
+     if not user or not check_password(password, user.password_hash):
+         raise HTTPException(status_code=403)`,
+
+    error: `ERROR 2024-01-15 14:32:01 [uvicorn.error] Exception in ASGI application
+Traceback (most recent call last):
+  File "app/routes/orders.py", line 87, in process_order
+    result = await db.execute(query, values)
+  File "databases/core.py", line 234, in execute
+    return await self._connection.execute(query, args)
+asyncpg.exceptions.UniqueViolationError: duplicate key value violates
+unique constraint "orders_pkey"
+DETAIL: Key (order_id)=(ORD-9842) already exists.`,
+
+    commits: `abc1234 feat: add Kafka consumer for order events
+def5678 fix: resolve connection pool exhaustion under load
+ghi9012 perf: batch DB writes, cut latency 45%
+jkl3456 feat: real-time dashboard webhook integration
+mno7890 fix: memory leak in event processor
+pqr2345 docs: update deployment runbook`
+  };
+
+  // --- TABS ---
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function(){
+      tabs.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      textarea.placeholder = placeholders[this.dataset.mode] || placeholders.diff;
+    });
+  });
+
+  // --- CHAR COUNTER ---
+  textarea.addEventListener('input', function(){
+    inlineError.textContent = '';
+    const len = this.value.length;
+    if (len > 4000) { this.value = this.value.slice(0,4000); return; }
+    charCounter.textContent = len + ' / 4000';
+    charCounter.classList.toggle('danger', len > 3800);
+    btnGenerate.disabled = len === 0 || isGenerating;
+  });
+
+  // --- SET STATUS ---
+  function setStatus(state, msg){
+    statusBar.classList.remove('idle','status-done','status-error');
+    statusDot.classList.remove('pulse');
+    if (state === 'idle') {
+      statusBar.classList.add('idle');
+    } else if (state === 'generating') {
+      statusDot.classList.add('pulse');
+      statusText.textContent = 'generating...';
+    } else if (state === 'done') {
+      statusBar.classList.add('status-done');
+      statusText.textContent = msg || 'done';
+    } else if (state === 'error') {
+      statusBar.classList.add('status-error');
+      statusText.textContent = msg || 'error \u2014 check console';
+    }
+  }
+
+  // --- SHOW/HIDE OUTPUT ---
+  function showOutput(text){
+    outputEmpty.style.display = 'none';
+    outputContent.style.display = 'block';
+    outputContent.textContent = text;
+  }
+
+  function showEmpty(){
+    outputEmpty.style.display = 'flex';
+    outputContent.style.display = 'none';
+    outputContent.textContent = '';
+  }
+
+  function showActions(visible){
+    actions.classList.toggle('hidden', !visible);
+  }
+
+  // --- BUILD SYSTEM PROMPT ---
+  function buildSystemPrompt(){
+    const mode = document.querySelector('.tab.active').dataset.mode;
+    const format = document.getElementById('formatSelect').value.toLowerCase().replace(/\s+/g, '_');
+    const audience = document.getElementById('audienceSelect').value.toLowerCase();
+    return PROMPTS[mode][format] + '\n\n' + AUDIENCE_NOTES[audience];
+  }
+
+  // --- CALL GEMINI STREAMING ---
+  async function callGemini(userInput, systemPrompt){
+    const key = getApiKey();
+    if (!key) {
+      inlineError.textContent = 'add your API key first';
+      showKeyModal();
+      return;
+    }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:streamGenerateContent?alt=sse&key=${key}`;
+    const body = {
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ role: 'user', parts: [{ text: userInput }] }],
+      generationConfig: { maxOutputTokens: 1000 }
+    };
+
+    abortController = new AbortController();
+    isGenerating = true;
+    charCountStreamed = 0;
+    showOutput('');
+    showActions(false);
+    btnGenerate.disabled = true;
+    setStatus('generating');
+    outputBox.classList.add('streaming');
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: abortController.signal
+      });
+
+      if (!response.ok) {
+        let errMsg = `HTTP ${response.status}`;
+        try {
+          const errBody = await response.json();
+          if (errBody.error && errBody.error.message) errMsg += ': ' + errBody.error.message;
+        } catch(_){}
+        throw new Error(errMsg);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const jsonStr = line.slice(6).trim();
+            if (jsonStr === '[DONE]') continue;
+            try {
+              const data = JSON.parse(jsonStr);
+              const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text) {
+                outputContent.textContent += text;
+                charCountStreamed += text.length;
+                outputBox.scrollTop = outputBox.scrollHeight;
+              }
+            } catch(_){}
+          }
+        }
+      }
+
+      setStatus('done', 'done \u00b7 ' + charCountStreamed + ' chars');
+      showActions(true);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        showEmpty();
+        showActions(false);
+        setStatus('idle');
+      } else {
+        showOutput('Error: ' + err.message);
+        setStatus('error', 'error \u2014 ' + err.message);
+        showActions(true);
+      }
+    } finally {
+      isGenerating = false;
+      abortController = null;
+      outputBox.classList.remove('streaming');
+      btnGenerate.disabled = textarea.value.length === 0 || isGenerating;
+    }
+  }
+
+  // --- GENERATE ---
+  function generate(){
+    if (isGenerating) return;
+    const input = textarea.value.trim();
+    if (!input) {
+      inlineError.textContent = 'input is empty';
+      return;
+    }
+    inlineError.textContent = '';
+    lastInput = input;
+    const systemPrompt = buildSystemPrompt();
+    callGemini(input, systemPrompt);
+  }
+
+  btnGenerate.addEventListener('click', generate);
+
+  // --- REGENERATE ---
+  btnRegen.addEventListener('click', function(){
+    if (isGenerating) return;
+    const input = textarea.value.trim();
+    if (!input) {
+      inlineError.textContent = 'input is empty';
+      return;
+    }
+    inlineError.textContent = '';
+    lastInput = input;
+    const systemPrompt = buildSystemPrompt();
+    callGemini(input, systemPrompt);
+  });
+
+  // --- CLEAR ---
+  btnClear.addEventListener('click', function(){
+    if (abortController) abortController.abort();
+    showEmpty();
+    showActions(false);
+    setStatus('idle');
+    btnGenerate.disabled = textarea.value.length === 0;
+  });
+
+  // --- COPY ---
+  btnCopy.addEventListener('click', function(){
+    const text = outputContent.textContent;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btnCopy.textContent;
+      btnCopy.textContent = 'copied \u2713';
+      setTimeout(() => { btnCopy.textContent = orig; }, 1500);
+    }).catch(() => {});
+  });
+
+  // --- MODAL SAVE ---
+  modalSaveBtn.addEventListener('click', function(){
+    const val = modalInput.value;
+    if (!val.trim()) return;
+    // trim whitespace — users often paste with trailing space
+    localStorage.setItem('gemini_key', val.trim());
+    hideKeyModal();
+  });
+  modalInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') { e.preventDefault(); modalSaveBtn.click(); }
+  });
+
+  // --- EXAMPLE CHIPS ---
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      textarea.value = EXAMPLES[chip.dataset.example];
+      textarea.dispatchEvent(new Event('input'));
+      textarea.focus();
+    });
+  });
+
+  // --- KEYBOARD SHORTCUT ---
+  textarea.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      generate();
+    }
+  });
+
+  // --- INIT ---
+  showEmpty();
+  showActions(false);
+  setStatus('idle');
+  if (!getApiKey()) showKeyModal();
+})();
+</script>
+</body>
+</html>
