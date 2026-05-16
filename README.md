@@ -6,12 +6,13 @@
 ## Why
 Writing dev docs is the worst part of shipping. devlog.ai removes it.
 Paste your diff. Get your changelog. 30 seconds not 30 minutes.
-
+you can access the website here its still in beta 
+🔗 **Live demo**: [pavanadithyak.github.io/devlog-ai](https://pavanadithyak.github.io/devlog-ai/)
 ## Screenshots
 ![Changelog output](screenshots/changelog.png)
 ![PR Description output](screenshots/pr-description.png)
 
-## How to run
+## How to run yourself
 1. Clone the repo
 2. Open index.html via live server or python -m http.server 8080
 3. Go to http://localhost:8080
